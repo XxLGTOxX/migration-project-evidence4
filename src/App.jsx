@@ -1,34 +1,41 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import TaskTable from './components/TaskTable'
 
 function App() {
-  const [count, setCount] = useState(0)
+  // Aquí irá la lógica de login y pestañas después
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="container">
+        <h1>Task Manager Modern</h1>
+        
+        {!isLoggedIn ? (
+          /* Aquí irá el Panel de Login */
+          <div className="panel">
+              <h2>Login</h2>
+              <div className="form-group">
+                  <label>Usuario:</label>
+                  <input type="text" defaultValue="admin" />
+              </div>
+              <div className="form-group">
+                  <label>Contraseña:</label>
+                  <input type="password" defaultValue="admin" />
+              </div>
+              <button onClick={() => setIsLoggedIn(true)}>Entrar</button>
+          </div>
+        ) : (
+          /* Aquí irá el Panel Principal cuando isLoggedIn sea true */
+          <div className="panel">
+              <div className="header">
+                  <span>Usuario: <strong>Admin</strong></span>
+                  <button onClick={() => setIsLoggedIn(false)}>Salir</button>
+              </div>
+              {<TaskTable />}
+              <p>Bienvenido al sistema migrado.</p>
+          </div>
+        )}
+    </div>
   )
 }
 
