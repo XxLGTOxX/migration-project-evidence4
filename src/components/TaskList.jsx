@@ -4,7 +4,6 @@ import TaskTable from './TaskTable';
 import TaskForm from './TaskForm';
 import TaskStats from './TaskStats';
 import './TaskList.css';
-import './TaskList.css';
 
 export default function TaskList({ currentUser }) {
   const [tasks, setTasks] = useState([]);
@@ -169,9 +168,53 @@ export default function TaskList({ currentUser }) {
     setSelectedTask(null);
   };
 
+  const handleExportCSV = () => {
+    const tasksData = Storage.getTasks();
+    const projectsData = Storage.getProjects();
+    const usersData = Storage.getUsers();
+    
+    // Encabezados del CSV
+    let csv = 'ID,Título,Descripción,Estado,Prioridad,Proyecto,Asignado a,Fecha Vencimiento,Horas Estimadas\n';
+    
+    // Agregar cada tarea al CSV
+    tasksData.forEach(task => {
+      const project = projectsData.find(p => p.id === task.projectId);
+      const user = usersData.find(u => u.id === task.assignedTo);
+      
+      // Escapar comillas y reemplazar saltos de línea
+      const escapeCSV = (str) => {
+        if (!str) return '';
+        return String(str)
+          .replace(/"/g, '""') // Escapar comillas dobles
+          .replace(/\n/g, ' ') // Reemplazar saltos de línea
+          .replace(/\r/g, ''); // Eliminar retornos de carro
+      };
+      
+      csv += `${task.id},"${escapeCSV(task.title)}","${escapeCSV(task.description)}","${task.status || 'Pendiente'}","${task.priority || 'Media'}","${project ? project.name : 'Sin proyecto'}","${user ? user.username : 'Sin asignar'}","${task.dueDate || 'Sin fecha'}","${task.estimatedHours || 0}"\n`;
+    });
+
+    // Crear el blob y descargar
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `tareas_export_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    alert('✅ Archivo CSV exportado correctamente');
+  };
+
   return (
     <div className="task-list-container">
-      <h2>Gestión de Tareas</h2>
+      <div className="header-actions">
+        <h2>Gestión de Tareas</h2>
+        <button onClick={handleExportCSV} className="export-csv-btn" title="Exportar tareas a CSV">
+          📥 Exportar CSV
+        </button>
+      </div>
       
       <div className="content-wrapper">
         <TaskForm
