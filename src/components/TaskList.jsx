@@ -3,6 +3,8 @@ import { Storage } from '../services/storage';
 import TaskTable from './TaskTable';
 import TaskForm from './TaskForm';
 import TaskStats from './TaskStats';
+import './TaskList.css';
+import './TaskList.css';
 
 export default function TaskList({ currentUser }) {
   const [tasks, setTasks] = useState([]);
@@ -168,27 +170,31 @@ export default function TaskList({ currentUser }) {
   };
 
   return (
-    <div>
+    <div className="task-list-container">
       <h2>Gestión de Tareas</h2>
       
-      <TaskForm
-        task={selectedTask}
-        projects={projects}
-        users={users}
-        onAdd={handleAddTask}
-        onUpdate={handleUpdateTask}
-        onDelete={handleDeleteTask}
-        onClear={handleClearForm}
-      />
+      <div className="content-wrapper">
+        <TaskForm
+          task={selectedTask}
+          projects={projects}
+          users={users}
+          onAdd={handleAddTask}
+          onUpdate={handleUpdateTask}
+          onDelete={handleDeleteTask}
+          onClear={handleClearForm}
+        />
 
-      <TaskTable
-        tasks={tasks}
-        projects={projects}
-        users={users}
-        onSelectTask={handleSelectTask}
-      />
+        <div className="right-column">
+          <TaskTable
+            tasks={tasks}
+            projects={projects}
+            users={users}
+            onSelectTask={handleSelectTask}
+          />
 
-      <TaskStats tasks={tasks} />
+          <TaskStats tasks={tasks} />
+        </div>
+      </div>
     </div>
   );
 }

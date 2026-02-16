@@ -1,10 +1,10 @@
 .stats {
   margin-top: 30px;
-  padding: 30px;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  padding: 25px;
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
   border-radius: 12px;
   color: white;
-  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 4px 15px rgba(129, 140, 248, 0.4);
 }
 
 .stats-header {
