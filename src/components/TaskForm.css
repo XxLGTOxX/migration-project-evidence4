@@ -8,7 +8,8 @@
   position: sticky;
   top: 20px;
   min-width: 0;
-  min-height: 380px;
+  max-width: 100%;
+  min-height: 320px;
 }
 
 .form-section h3 {
@@ -57,6 +58,7 @@
   transition: all 0.3s ease;
   background-color: #0f172a;
   color: #e2e8f0;
+  box-sizing: border-box;
 }
 
 .form-group input::placeholder,
@@ -172,12 +174,18 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .form-section {
-    padding: 20px 24px;
+    position: static;
+    padding: 22px 20px;
+    min-height: 0;
   }
   .form-section h3 {
-    font-size: 20px;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  .form-group {
+    margin-bottom: 18px;
   }
   .form-group label {
     font-size: 14px;
@@ -187,5 +195,35 @@
   .form-group textarea {
     padding: 12px 14px;
     font-size: 14px;
+  }
+  .form-group textarea {
+    min-height: 72px;
+  }
+  .button-group {
+    margin-top: 20px;
+    padding-top: 16px;
+    gap: 10px;
+  }
+  .button-group button {
+    padding: 12px 18px;
+    font-size: 14px;
+    flex: 1 1 auto;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-section {
+    padding: 18px 16px;
+  }
+  .form-section h3 {
+    font-size: 17px;
+  }
+  .button-group {
+    flex-direction: column;
+  }
+  .button-group button {
+    width: 100%;
+    min-width: 0;
   }
 }
