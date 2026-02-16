@@ -1,40 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
-import TaskTable from './components/TaskTable'
+import Login from './components/Login'
+import Header from './components/Header'
+import TaskList from './components/TaskList'
+import { Storage } from './services/storage'
 
 function App() {
-  // Aquí irá la lógica de login y pestañas después
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    // Inicializar storage al cargar la app
+    Storage.init();
+  }, []);
+
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+  };
 
   return (
     <div className="container">
-        <h1>Task Manager Modern</h1>
-        
-        {!isLoggedIn ? (
-          /* Aquí irá el Panel de Login */
-          <div className="panel">
-              <h2>Login</h2>
-              <div className="form-group">
-                  <label>Usuario:</label>
-                  <input type="text" defaultValue="admin" />
-              </div>
-              <div className="form-group">
-                  <label>Contraseña:</label>
-                  <input type="password" defaultValue="admin" />
-              </div>
-              <button onClick={() => setIsLoggedIn(true)}>Entrar</button>
-          </div>
-        ) : (
-          /* Aquí irá el Panel Principal cuando isLoggedIn sea true */
-          <div className="panel">
-              <div className="header">
-                  <span>Usuario: <strong>Admin</strong></span>
-                  <button onClick={() => setIsLoggedIn(false)}>Salir</button>
-              </div>
-              {<TaskTable />}
-              <p>Bienvenido al sistema migrado.</p>
-          </div>
-        )}
+      <h1>Task Manager Modern</h1>
+      
+      {!currentUser ? (
+        <Login onLogin={handleLogin} />
+      ) : (
+        <div className="panel">
+          <Header currentUser={currentUser} onLogout={handleLogout} />
+          <TaskList currentUser={currentUser} />
+        </div>
+      )}
     </div>
   )
 }
