@@ -14,28 +14,40 @@ export default function TaskTable({ tasks, projects, users, onSelectTask }) {
   return (
     <div className="table-section">
       <h3>Lista de Tareas</h3>
-      <table>
+      <table role="table" aria-label="Tabla de tareas">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Estado</th>
-            <th>Prioridad</th>
-            <th>Proyecto</th>
-            <th>Asignado</th>
-            <th>Vencimiento</th>
+            <th scope="col">ID</th>
+            <th scope="col">Título</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Prioridad</th>
+            <th scope="col">Proyecto</th>
+            <th scope="col">Asignado</th>
+            <th scope="col">Vencimiento</th>
           </tr>
         </thead>
         <tbody>
           {tasks.length === 0 ? (
             <tr>
-              <td colSpan="7" style={{ textAlign: 'center' }}>
+              <td colSpan="7" style={{ textAlign: 'center' }} role="status" aria-live="polite">
                 No hay tareas registradas
               </td>
             </tr>
           ) : (
             tasks.map(task => (
-              <tr key={task.id} onClick={() => onSelectTask(task.id)}>
+              <tr 
+                key={task.id} 
+                onClick={() => onSelectTask(task.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectTask(task.id);
+                  }
+                }}
+                aria-label={`Seleccionar tarea ${task.title}`}
+              >
                 <td>{task.id}</td>
                 <td>{task.title}</td>
                 <td>{task.status || 'Pendiente'}</td>

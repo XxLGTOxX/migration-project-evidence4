@@ -72,29 +72,39 @@ export default function TaskForm({ task, projects, users, onAdd, onUpdate, onDel
   };
 
   return (
-    <div className="form-section">
+    <div className="form-section" role="form" aria-label="Formulario de tarea">
       <h3>Nueva/Editar Tarea</h3>
       <div className="form-group">
-        <label>Título:</label>
+        <label htmlFor="task-title">Título:</label>
         <input
+          id="task-title"
           type="text"
           name="title"
           value={formData.title}
           onChange={handleChange}
+          aria-required="true"
         />
       </div>
       <div className="form-group">
-        <label>Descripción:</label>
+        <label htmlFor="task-description">Descripción:</label>
         <textarea
+          id="task-description"
           name="description"
           rows="3"
           value={formData.description}
           onChange={handleChange}
+          aria-label="Descripción de la tarea"
         />
       </div>
       <div className="form-group">
-        <label>Estado:</label>
-        <select name="status" value={formData.status} onChange={handleChange}>
+        <label htmlFor="task-status">Estado:</label>
+        <select 
+          id="task-status"
+          name="status" 
+          value={formData.status} 
+          onChange={handleChange}
+          aria-label="Estado de la tarea"
+        >
           <option>Pendiente</option>
           <option>En Progreso</option>
           <option>Completada</option>
@@ -103,8 +113,14 @@ export default function TaskForm({ task, projects, users, onAdd, onUpdate, onDel
         </select>
       </div>
       <div className="form-group">
-        <label>Prioridad:</label>
-        <select name="priority" value={formData.priority} onChange={handleChange}>
+        <label htmlFor="task-priority">Prioridad:</label>
+        <select 
+          id="task-priority"
+          name="priority" 
+          value={formData.priority} 
+          onChange={handleChange}
+          aria-label="Prioridad de la tarea"
+        >
           <option>Baja</option>
           <option>Media</option>
           <option>Alta</option>
@@ -112,8 +128,14 @@ export default function TaskForm({ task, projects, users, onAdd, onUpdate, onDel
         </select>
       </div>
       <div className="form-group">
-        <label>Proyecto:</label>
-        <select name="projectId" value={formData.projectId} onChange={handleChange}>
+        <label htmlFor="task-project">Proyecto:</label>
+        <select 
+          id="task-project"
+          name="projectId" 
+          value={formData.projectId} 
+          onChange={handleChange}
+          aria-label="Proyecto asignado"
+        >
           <option value="0">Sin proyecto</option>
           {projects.map(project => (
             <option key={project.id} value={project.id}>{project.name}</option>
@@ -121,8 +143,14 @@ export default function TaskForm({ task, projects, users, onAdd, onUpdate, onDel
         </select>
       </div>
       <div className="form-group">
-        <label>Asignado a:</label>
-        <select name="assignedTo" value={formData.assignedTo} onChange={handleChange}>
+        <label htmlFor="task-assigned">Asignado a:</label>
+        <select 
+          id="task-assigned"
+          name="assignedTo" 
+          value={formData.assignedTo} 
+          onChange={handleChange}
+          aria-label="Usuario asignado"
+        >
           <option value="0">Sin asignar</option>
           {users.map(user => (
             <option key={user.id} value={user.id}>{user.username}</option>
@@ -130,30 +158,34 @@ export default function TaskForm({ task, projects, users, onAdd, onUpdate, onDel
         </select>
       </div>
       <div className="form-group">
-        <label>Fecha Vencimiento:</label>
+        <label htmlFor="task-due-date">Fecha Vencimiento:</label>
         <input
+          id="task-due-date"
           type="text"
           name="dueDate"
           placeholder="YYYY-MM-DD"
           value={formData.dueDate}
           onChange={handleChange}
+          aria-label="Fecha de vencimiento"
         />
       </div>
       <div className="form-group">
-        <label>Horas Estimadas:</label>
+        <label htmlFor="task-hours">Horas Estimadas:</label>
         <input
+          id="task-hours"
           type="number"
           name="estimatedHours"
           step="0.5"
           value={formData.estimatedHours}
           onChange={handleChange}
+          aria-label="Horas estimadas"
         />
       </div>
-      <div className="button-group">
-        <button onClick={handleAdd}>Agregar</button>
-        <button onClick={handleUpdate}>Actualizar</button>
-        <button onClick={handleDelete}>Eliminar</button>
-        <button onClick={onClear}>Limpiar</button>
+      <div className="button-group" role="group" aria-label="Acciones de tarea">
+        <button onClick={handleAdd} aria-label="Agregar nueva tarea">Agregar</button>
+        <button onClick={handleUpdate} aria-label="Actualizar tarea seleccionada">Actualizar</button>
+        <button onClick={handleDelete} aria-label="Eliminar tarea seleccionada">Eliminar</button>
+        <button onClick={onClear} aria-label="Limpiar formulario">Limpiar</button>
       </div>
     </div>
   );

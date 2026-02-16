@@ -27,27 +27,37 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div className="panel login-panel">
+    <div className="panel login-panel" role="main">
       <h2>Login</h2>
-      {error && <div className="login-error">{error}</div>}
-      <form onSubmit={handleSubmit}>
+      {error && (
+        <div className="login-error" role="alert" aria-live="polite">
+          {error}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} aria-label="Formulario de inicio de sesión">
         <div className="form-group">
-          <label>Usuario:</label>
+          <label htmlFor="username">Usuario:</label>
           <input 
+            id="username"
             type="text" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            aria-required="true"
+            aria-describedby={error ? "login-error" : undefined}
           />
         </div>
         <div className="form-group">
-          <label>Contraseña:</label>
+          <label htmlFor="password">Contraseña:</label>
           <input 
+            id="password"
             type="password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            aria-required="true"
+            aria-describedby={error ? "login-error" : undefined}
           />
         </div>
-        <button type="submit">Entrar</button>
+        <button type="submit" aria-label="Iniciar sesión">Entrar</button>
       </form>
     </div>
   );
