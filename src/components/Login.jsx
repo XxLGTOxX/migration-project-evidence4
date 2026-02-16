@@ -57,7 +57,7 @@ export default function Login({ onLogin }) {
             aria-describedby={error ? "login-error" : undefined}
           />
         </div>
-        <button type="submit" aria-label="Iniciar sesión">Entrar</button>
+        <button type="submit" aria-label="Iniciar sesión" className="login-button">🚀 Entrar</button>
       </form>
     </div>
   );

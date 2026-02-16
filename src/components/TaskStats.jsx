@@ -35,12 +35,31 @@ export default function TaskStats({ tasks }) {
 
   return (
     <div className="stats">
-      <strong>Estadísticas:</strong>
-      <span>
-        {' '}Total: {stats.total} | Completadas: {stats.completed} | 
-        Pendientes: {stats.pending} | Alta Prioridad: {stats.highPriority} | 
-        Vencidas: {stats.overdue}
-      </span>
+      <div className="stats-header">
+        <strong>📊 Estadísticas</strong>
+      </div>
+      <div className="stats-grid">
+        <div className="stat-item">
+          <div className="stat-value">{stats.total}</div>
+          <div className="stat-label">Total</div>
+        </div>
+        <div className="stat-item stat-completed">
+          <div className="stat-value">{stats.completed}</div>
+          <div className="stat-label">Completadas</div>
+        </div>
+        <div className="stat-item stat-pending">
+          <div className="stat-value">{stats.pending}</div>
+          <div className="stat-label">Pendientes</div>
+        </div>
+        <div className="stat-item stat-priority">
+          <div className="stat-value">{stats.highPriority}</div>
+          <div className="stat-label">Alta Prioridad</div>
+        </div>
+        <div className="stat-item stat-overdue">
+          <div className="stat-value">{stats.overdue}</div>
+          <div className="stat-label">Vencidas</div>
+        </div>
+      </div>
     </div>
   );
 }

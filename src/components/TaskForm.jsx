@@ -182,10 +182,10 @@ export default function TaskForm({ task, projects, users, onAdd, onUpdate, onDel
         />
       </div>
       <div className="button-group" role="group" aria-label="Acciones de tarea">
-        <button onClick={handleAdd} aria-label="Agregar nueva tarea">Agregar</button>
-        <button onClick={handleUpdate} aria-label="Actualizar tarea seleccionada">Actualizar</button>
-        <button onClick={handleDelete} aria-label="Eliminar tarea seleccionada">Eliminar</button>
-        <button onClick={onClear} aria-label="Limpiar formulario">Limpiar</button>
+        <button onClick={handleAdd} aria-label="Agregar nueva tarea" className="btn-primary">➕ Agregar</button>
+        <button onClick={handleUpdate} aria-label="Actualizar tarea seleccionada" className="btn-primary" disabled={!task}>✏️ Actualizar</button>
+        <button onClick={handleDelete} aria-label="Eliminar tarea seleccionada" className="btn-danger" disabled={!task}>🗑️ Eliminar</button>
+        <button onClick={onClear} aria-label="Limpiar formulario" className="btn-secondary">🔄 Limpiar</button>
       </div>
     </div>
   );
