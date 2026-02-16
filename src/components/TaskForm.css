@@ -104,12 +104,12 @@
 
 /* Botón primario */
 .button-group .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
 }
 
 .button-group .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
 }
 
 /* Botón de peligro (eliminar) */

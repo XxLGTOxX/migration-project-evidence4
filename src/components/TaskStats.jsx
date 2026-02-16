@@ -39,7 +39,7 @@ export default function TaskStats({ tasks }) {
         <strong>📊 Estadísticas</strong>
       </div>
       <div className="stats-grid">
-        <div className="stat-item">
+        <div className="stat-item stat-total">
           <div className="stat-value">{stats.total}</div>
           <div className="stat-label">Total</div>
         </div>
