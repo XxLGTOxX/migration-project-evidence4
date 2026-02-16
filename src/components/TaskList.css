@@ -72,7 +72,7 @@
 }
 
 .content-wrapper-three {
-  grid-template-columns: 1fr 1fr minmax(280px, 0.8fr);
+  grid-template-columns: minmax(380px, 1.1fr) 1fr minmax(280px, 0.8fr);
 }
 
 @media (max-width: 1200px) {
