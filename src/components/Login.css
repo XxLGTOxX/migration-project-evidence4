@@ -1,0 +1,17 @@
+.login-panel {
+  margin: 10px 0;
+}
+
+.login-panel h2 {
+  font-size: 14px;
+  margin: 10px 0 5px 0;
+  border-bottom: 1px solid #000;
+}
+
+.login-error {
+  color: red;
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #ffe0e0;
+  border: 1px solid #ff0000;
+}
