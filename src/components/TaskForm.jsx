@@ -161,9 +161,8 @@ export default function TaskForm({ task, projects, users, onAdd, onUpdate, onDel
         <label htmlFor="task-due-date">Fecha Vencimiento:</label>
         <input
           id="task-due-date"
-          type="text"
+          type="date"
           name="dueDate"
-          placeholder="YYYY-MM-DD"
           value={formData.dueDate}
           onChange={handleChange}
           aria-label="Fecha de vencimiento"
