@@ -1,12 +1,14 @@
 import { useState } from 'react';
+import { Storage } from '../services/storage';
 import './Login.css';
 
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!username || !password) {
@@ -14,15 +16,17 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    // Obtener usuarios del localStorage
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.username === username && u.password === password);
+    setLoading(true);
+    setError('');
 
-    if (user) {
+    try {
+      const user = await Storage.login(username, password);
       setError('');
       onLogin(user);
-    } else {
+    } catch (err) {
       setError('Credenciales inválidas');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +61,9 @@ export default function Login({ onLogin }) {
             aria-describedby={error ? "login-error" : undefined}
           />
         </div>
-        <button type="submit" aria-label="Iniciar sesión" className="login-button">🚀 Entrar</button>
+        <button type="submit" aria-label="Iniciar sesión" className="login-button" disabled={loading}>
+          {loading ? '⏳ Cargando...' : '🚀 Entrar'}
+        </button>
       </form>
     </div>
   );

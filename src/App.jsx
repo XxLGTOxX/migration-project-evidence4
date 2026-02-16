@@ -10,7 +10,9 @@ function App() {
 
   useEffect(() => {
     // Inicializar storage al cargar la app
-    Storage.init();
+    Storage.init().catch(err => {
+      console.error('Error initializing storage:', err);
+    });
   }, []);
 
   const handleLogin = (user) => {

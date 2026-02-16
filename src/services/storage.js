@@ -1,164 +1,242 @@
-// Servicio de almacenamiento con localStorage
+// Servicio de almacenamiento con MongoDB API
+import API_BASE_URL from '../config/api.js';
+
+const api = {
+  async get(url) {
+    const response = await fetch(`${API_BASE_URL}${url}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  async post(url, data) {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  async put(url, data) {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  async delete(url, data = {}) {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+};
+
 export const Storage = {
-  // Inicializar datos por defecto
-  init() {
-    if (!localStorage.getItem('users')) {
-      localStorage.setItem('users', JSON.stringify([
-        { id: 1, username: 'admin', password: 'admin' },
-        { id: 2, username: 'user1', password: 'user1' },
-        { id: 3, username: 'user2', password: 'user2' }
-      ]));
-    }
-    if (!localStorage.getItem('projects')) {
-      localStorage.setItem('projects', JSON.stringify([
-        { id: 1, name: 'Proyecto Demo', description: 'Proyecto de ejemplo' },
-        { id: 2, name: 'Proyecto Alpha', description: 'Proyecto importante' },
-        { id: 3, name: 'Proyecto Beta', description: 'Proyecto secundario' }
-      ]));
-    }
-    if (!localStorage.getItem('tasks')) {
-      localStorage.setItem('tasks', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('comments')) {
-      localStorage.setItem('comments', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('history')) {
-      localStorage.setItem('history', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('notifications')) {
-      localStorage.setItem('notifications', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('nextTaskId')) {
-      localStorage.setItem('nextTaskId', '1');
-    }
-    if (!localStorage.getItem('nextProjectId')) {
-      localStorage.setItem('nextProjectId', '4');
+  // Inicializar datos (el backend lo hace automáticamente)
+  async init() {
+    try {
+      // Verificar que la API esté funcionando
+      await api.get('/health');
+      return true;
+    } catch (error) {
+      console.error('Error connecting to API:', error);
+      // Fallback a localStorage si la API no está disponible
+      return false;
     }
   },
 
   // Usuarios
-  getUsers() {
-    return JSON.parse(localStorage.getItem('users') || '[]');
+  async getUsers() {
+    try {
+      return await api.get('/users');
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return [];
+    }
+  },
+
+  // Login
+  async login(username, password) {
+    try {
+      const user = await api.post('/users/login', { username, password });
+      return user;
+    } catch (error) {
+      throw new Error('Credenciales inválidas');
+    }
   },
 
   // Proyectos
-  getProjects() {
-    return JSON.parse(localStorage.getItem('projects') || '[]');
-  },
-
-  addProject(project) {
-    const projects = this.getProjects();
-    const id = parseInt(localStorage.getItem('nextProjectId') || '1');
-    project.id = id;
-    projects.push(project);
-    localStorage.setItem('projects', JSON.stringify(projects));
-    localStorage.setItem('nextProjectId', String(id + 1));
-    return id;
-  },
-
-  updateProject(id, project) {
-    const projects = this.getProjects();
-    const index = projects.findIndex(p => p.id === id);
-    if (index !== -1) {
-      project.id = id;
-      projects[index] = project;
-      localStorage.setItem('projects', JSON.stringify(projects));
-      return true;
+  async getProjects() {
+    try {
+      return await api.get('/projects');
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      return [];
     }
-    return false;
   },
 
-  deleteProject(id) {
-    const projects = this.getProjects();
-    const filtered = projects.filter(p => p.id !== id);
-    localStorage.setItem('projects', JSON.stringify(filtered));
-    return true;
+  async addProject(project) {
+    try {
+      const result = await api.post('/projects', project);
+      return result.id;
+    } catch (error) {
+      console.error('Error adding project:', error);
+      throw error;
+    }
+  },
+
+  async updateProject(id, project) {
+    try {
+      await api.put(`/projects/${id}`, project);
+      return true;
+    } catch (error) {
+      console.error('Error updating project:', error);
+      return false;
+    }
+  },
+
+  async deleteProject(id) {
+    try {
+      await api.delete(`/projects/${id}`);
+      return true;
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      return false;
+    }
   },
 
   // Tareas
-  getTasks() {
-    return JSON.parse(localStorage.getItem('tasks') || '[]');
-  },
-
-  addTask(task) {
-    const tasks = this.getTasks();
-    const id = parseInt(localStorage.getItem('nextTaskId') || '1');
-    task.id = id;
-    task.createdAt = new Date().toISOString();
-    task.updatedAt = new Date().toISOString();
-    tasks.push(task);
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    localStorage.setItem('nextTaskId', String(id + 1));
-    return id;
-  },
-
-  updateTask(id, task) {
-    const tasks = this.getTasks();
-    const index = tasks.findIndex(t => t.id === id);
-    if (index !== -1) {
-      task.id = id;
-      task.updatedAt = new Date().toISOString();
-      tasks[index] = task;
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-      return true;
+  async getTasks() {
+    try {
+      return await api.get('/tasks');
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      return [];
     }
-    return false;
   },
 
-  deleteTask(id) {
-    const tasks = this.getTasks();
-    const filtered = tasks.filter(t => t.id !== id);
-    localStorage.setItem('tasks', JSON.stringify(filtered));
-    return true;
+  async addTask(task) {
+    try {
+      const result = await api.post('/tasks', task);
+      return result.id;
+    } catch (error) {
+      console.error('Error adding task:', error);
+      throw error;
+    }
+  },
+
+  async updateTask(id, task) {
+    try {
+      await api.put(`/tasks/${id}`, task);
+      return true;
+    } catch (error) {
+      console.error('Error updating task:', error);
+      return false;
+    }
+  },
+
+  async deleteTask(id, userId) {
+    try {
+      await api.delete(`/tasks/${id}`, { userId });
+      return true;
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      return false;
+    }
   },
 
   // Comentarios
-  getComments() {
-    return JSON.parse(localStorage.getItem('comments') || '[]');
+  async getComments(taskId = null) {
+    try {
+      const url = taskId ? `/comments?taskId=${taskId}` : '/comments';
+      return await api.get(url);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      return [];
+    }
   },
 
-  addComment(comment) {
-    const comments = this.getComments();
-    comment.id = comments.length + 1;
-    comment.createdAt = new Date().toISOString();
-    comments.push(comment);
-    localStorage.setItem('comments', JSON.stringify(comments));
+  async addComment(comment) {
+    try {
+      await api.post('/comments', comment);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      throw error;
+    }
   },
 
   // Historial
-  getHistory() {
-    return JSON.parse(localStorage.getItem('history') || '[]');
+  async getHistory(taskId = null) {
+    try {
+      const url = taskId ? `/history?taskId=${taskId}` : '/history';
+      return await api.get(url);
+    } catch (error) {
+      console.error('Error fetching history:', error);
+      return [];
+    }
   },
 
-  addHistory(entry) {
-    const history = this.getHistory();
-    entry.id = history.length + 1;
-    entry.timestamp = new Date().toISOString();
-    history.push(entry);
-    localStorage.setItem('history', JSON.stringify(history));
+  async addHistory(entry) {
+    try {
+      await api.post('/history', entry);
+    } catch (error) {
+      console.error('Error adding history:', error);
+      throw error;
+    }
   },
 
   // Notificaciones
-  getNotifications() {
-    return JSON.parse(localStorage.getItem('notifications') || '[]');
+  async getNotifications(userId = null, read = null) {
+    try {
+      let url = '/notifications';
+      const params = [];
+      if (userId) params.push(`userId=${userId}`);
+      if (read !== null) params.push(`read=${read}`);
+      if (params.length > 0) url += '?' + params.join('&');
+      return await api.get(url);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
   },
 
-  addNotification(notification) {
-    const notifications = this.getNotifications();
-    notification.id = notifications.length + 1;
-    notification.read = false;
-    notification.createdAt = new Date().toISOString();
-    notifications.push(notification);
-    localStorage.setItem('notifications', JSON.stringify(notifications));
+  async addNotification(notification) {
+    try {
+      await api.post('/notifications', notification);
+    } catch (error) {
+      console.error('Error adding notification:', error);
+      throw error;
+    }
   },
 
-  markNotificationsRead(userId) {
-    const notifications = this.getNotifications();
-    notifications.forEach(n => {
-      if (n.userId === userId) {
-        n.read = true;
-      }
-    });
-    localStorage.setItem('notifications', JSON.stringify(notifications));
-  }
+  async markNotificationsRead(userId) {
+    try {
+      await api.put(`/notifications/mark-read/${userId}`);
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+      throw error;
+    }
+  },
 };

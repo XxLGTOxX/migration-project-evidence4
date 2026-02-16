@@ -14,123 +14,109 @@ export default function TaskList({ currentUser }) {
 
   useEffect(() => {
     // Inicializar storage y cargar datos
-    Storage.init();
-    loadTasks();
-    loadProjects();
-    loadUsers();
+    initializeData();
   }, []);
 
-  const loadTasks = () => {
-    const tasksData = Storage.getTasks();
-    setTasks(tasksData);
-  };
-
-  const loadProjects = () => {
-    const projectsData = Storage.getProjects();
-    setProjects(projectsData);
-  };
-
-  const loadUsers = () => {
-    const usersData = Storage.getUsers();
-    setUsers(usersData);
-  };
-
-  const handleAddTask = (taskData) => {
-    const task = {
-      title: taskData.title,
-      description: taskData.description || '',
-      status: taskData.status || 'Pendiente',
-      priority: taskData.priority || 'Media',
-      projectId: parseInt(taskData.projectId) || 0,
-      assignedTo: parseInt(taskData.assignedTo) || 0,
-      dueDate: taskData.dueDate || '',
-      estimatedHours: parseFloat(taskData.estimatedHours) || 0,
-      actualHours: 0,
-      createdBy: currentUser.id
-    };
-
-    const taskId = Storage.addTask(task);
-    
-    Storage.addHistory({
-      taskId: taskId,
-      userId: currentUser.id,
-      action: 'CREATED',
-      oldValue: '',
-      newValue: task.title
-    });
-
-    if (task.assignedTo > 0) {
-      Storage.addNotification({
-        userId: task.assignedTo,
-        message: 'Nueva tarea asignada: ' + task.title,
-        type: 'task_assigned'
-      });
+  const initializeData = async () => {
+    try {
+      await Storage.init();
+      await loadTasks();
+      await loadProjects();
+      await loadUsers();
+    } catch (error) {
+      console.error('Error initializing data:', error);
+      alert('Error conectando con el servidor. Verifica que el backend esté corriendo.');
     }
-
-    loadTasks();
-    return true;
   };
 
-  const handleUpdateTask = (taskData) => {
+  const loadTasks = async () => {
+    try {
+      const tasksData = await Storage.getTasks();
+      setTasks(tasksData);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    }
+  };
+
+  const loadProjects = async () => {
+    try {
+      const projectsData = await Storage.getProjects();
+      setProjects(projectsData);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const usersData = await Storage.getUsers();
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  };
+
+  const handleAddTask = async (taskData) => {
+    try {
+      const task = {
+        title: taskData.title,
+        description: taskData.description || '',
+        status: taskData.status || 'Pendiente',
+        priority: taskData.priority || 'Media',
+        projectId: taskData.projectId && taskData.projectId !== '0' ? taskData.projectId : null,
+        assignedTo: taskData.assignedTo && taskData.assignedTo !== '0' ? taskData.assignedTo : null,
+        dueDate: taskData.dueDate || '',
+        estimatedHours: parseFloat(taskData.estimatedHours) || 0,
+        actualHours: 0,
+        createdBy: currentUser.id
+      };
+
+      const taskId = await Storage.addTask(task);
+      await loadTasks();
+      return true;
+    } catch (error) {
+      console.error('Error adding task:', error);
+      alert('Error al agregar la tarea');
+      return false;
+    }
+  };
+
+  const handleUpdateTask = async (taskData) => {
     if (!selectedTaskId) {
       alert('Selecciona una tarea');
       return false;
     }
 
-    const oldTask = tasks.find(t => t.id === selectedTaskId);
-    if (!oldTask) return false;
+    try {
+      const oldTask = tasks.find(t => t.id === selectedTaskId);
+      if (!oldTask) return false;
 
-    const task = {
-      title: taskData.title,
-      description: taskData.description || '',
-      status: taskData.status || 'Pendiente',
-      priority: taskData.priority || 'Media',
-      projectId: parseInt(taskData.projectId) || 0,
-      assignedTo: parseInt(taskData.assignedTo) || 0,
-      dueDate: taskData.dueDate || '',
-      estimatedHours: parseFloat(taskData.estimatedHours) || 0,
-      actualHours: oldTask.actualHours || 0,
-      createdBy: oldTask.createdBy,
-      createdAt: oldTask.createdAt
-    };
+      const task = {
+        title: taskData.title,
+        description: taskData.description || '',
+        status: taskData.status || 'Pendiente',
+        priority: taskData.priority || 'Media',
+        projectId: taskData.projectId && taskData.projectId !== '0' ? taskData.projectId : null,
+        assignedTo: taskData.assignedTo && taskData.assignedTo !== '0' ? taskData.assignedTo : null,
+        dueDate: taskData.dueDate || '',
+        estimatedHours: parseFloat(taskData.estimatedHours) || 0,
+        actualHours: oldTask.actualHours || 0,
+        userId: currentUser.id
+      };
 
-    if (oldTask.status !== task.status) {
-      Storage.addHistory({
-        taskId: selectedTaskId,
-        userId: currentUser.id,
-        action: 'STATUS_CHANGED',
-        oldValue: oldTask.status,
-        newValue: task.status
-      });
+      await Storage.updateTask(selectedTaskId, task);
+      await loadTasks();
+      setSelectedTaskId(null);
+      setSelectedTask(null);
+      return true;
+    } catch (error) {
+      console.error('Error updating task:', error);
+      alert('Error al actualizar la tarea');
+      return false;
     }
-
-    if (oldTask.title !== task.title) {
-      Storage.addHistory({
-        taskId: selectedTaskId,
-        userId: currentUser.id,
-        action: 'TITLE_CHANGED',
-        oldValue: oldTask.title,
-        newValue: task.title
-      });
-    }
-
-    Storage.updateTask(selectedTaskId, task);
-
-    if (task.assignedTo > 0) {
-      Storage.addNotification({
-        userId: task.assignedTo,
-        message: 'Tarea actualizada: ' + task.title,
-        type: 'task_updated'
-      });
-    }
-
-    loadTasks();
-    setSelectedTaskId(null);
-    setSelectedTask(null);
-    return true;
   };
 
-  const handleDeleteTask = () => {
+  const handleDeleteTask = async () => {
     if (!selectedTaskId) {
       alert('Selecciona una tarea');
       return;
@@ -140,18 +126,15 @@ export default function TaskList({ currentUser }) {
     if (!task) return;
 
     if (confirm('¿Eliminar tarea: ' + task.title + '?')) {
-      Storage.addHistory({
-        taskId: selectedTaskId,
-        userId: currentUser.id,
-        action: 'DELETED',
-        oldValue: task.title,
-        newValue: ''
-      });
-
-      Storage.deleteTask(selectedTaskId);
-      loadTasks();
-      setSelectedTaskId(null);
-      setSelectedTask(null);
+      try {
+        await Storage.deleteTask(selectedTaskId, currentUser.id);
+        await loadTasks();
+        setSelectedTaskId(null);
+        setSelectedTask(null);
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        alert('Error al eliminar la tarea');
+      }
     }
   };
 
