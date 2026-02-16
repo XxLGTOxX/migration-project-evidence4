@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Storage } from '../services/storage';
 import TaskTable from './TaskTable';
 import TaskForm from './TaskForm';
 import TaskStats from './TaskStats';
+import TaskDetailPanel from './TaskDetailPanel';
+import TaskSearch from './TaskSearch';
+import ReportGenerator from './ReportGenerator';
+import NotificationsPanel from './NotificationsPanel';
 import ProjectForm from './ProjectForm';
 import ProjectTable from './ProjectTable';
 import './TaskList.css';
 
 const TAB_TAREAS = 'tareas';
 const TAB_PROYECTOS = 'proyectos';
+const TAB_NOTIFICACIONES = 'notificaciones';
 
 export default function TaskList({ currentUser }) {
   const [activeTab, setActiveTab] = useState(TAB_TAREAS);
@@ -18,6 +23,10 @@ export default function TaskList({ currentUser }) {
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [projectFilter, setProjectFilter] = useState('');
 
   useEffect(() => {
     // Inicializar storage y cargar datos
@@ -208,33 +217,20 @@ export default function TaskList({ currentUser }) {
     setSelectedProject(null);
   };
 
-  const handleExportCSV = () => {
-    const escapeCSV = (str) => {
-      if (!str) return '';
-      return String(str)
-        .replace(/"/g, '""')
-        .replace(/\n/g, ' ')
-        .replace(/\r/g, '');
-    };
-
-    let csv = 'ID,Título,Descripción,Estado,Prioridad,Proyecto,Asignado a,Fecha Vencimiento,Horas Estimadas\n';
-    tasks.forEach((task) => {
-      const project = projects.find((p) => p.id === task.projectId);
-      const user = users.find((u) => u.id === task.assignedTo);
-      csv += `${task.id},"${escapeCSV(task.title)}","${escapeCSV(task.description)}","${task.status || 'Pendiente'}","${task.priority || 'Media'}","${project ? project.name : 'Sin proyecto'}","${user ? user.username : 'Sin asignar'}","${task.dueDate || 'Sin fecha'}","${task.estimatedHours || 0}"\n`;
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const text = searchText.toLowerCase().trim();
+      if (text) {
+        const matchTitle = (task.title || '').toLowerCase().includes(text);
+        const matchDesc = (task.description || '').toLowerCase().includes(text);
+        if (!matchTitle && !matchDesc) return false;
+      }
+      if (statusFilter && (task.status || 'Pendiente') !== statusFilter) return false;
+      if (priorityFilter && (task.priority || 'Media') !== priorityFilter) return false;
+      if (projectFilter && task.projectId !== projectFilter) return false;
+      return true;
     });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `tareas_export_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-    alert('✅ Archivo CSV exportado correctamente');
-  };
+  }, [tasks, searchText, statusFilter, priorityFilter, projectFilter]);
 
   return (
     <div className="task-list-container">
@@ -253,18 +249,35 @@ export default function TaskList({ currentUser }) {
         >
           📁 Proyectos
         </button>
+        <button
+          type="button"
+          className={`tab-button ${activeTab === TAB_NOTIFICACIONES ? 'active' : ''}`}
+          onClick={() => setActiveTab(TAB_NOTIFICACIONES)}
+        >
+          🔔 Notificaciones
+        </button>
       </div>
 
       {activeTab === TAB_TAREAS && (
         <>
           <div className="header-actions">
             <h2>Gestión de Tareas</h2>
-            <button onClick={handleExportCSV} className="export-csv-btn" title="Exportar tareas a CSV">
-              📥 Exportar CSV
-            </button>
+            <ReportGenerator tasks={tasks} projects={projects} users={users} />
           </div>
 
-          <div className="content-wrapper">
+          <TaskSearch
+            searchText={searchText}
+            setSearchText={setSearchText}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            priorityFilter={priorityFilter}
+            setPriorityFilter={setPriorityFilter}
+            projectFilter={projectFilter}
+            setProjectFilter={setProjectFilter}
+            projects={projects}
+          />
+
+          <div className="content-wrapper content-wrapper-three">
             <TaskForm
               task={selectedTask}
               projects={projects}
@@ -276,13 +289,19 @@ export default function TaskList({ currentUser }) {
             />
             <div className="right-column">
               <TaskTable
-                tasks={tasks}
+                tasks={filteredTasks}
                 projects={projects}
                 users={users}
                 onSelectTask={handleSelectTask}
               />
-              <TaskStats tasks={tasks} />
+              <TaskStats tasks={filteredTasks} />
             </div>
+            <TaskDetailPanel
+              task={selectedTask}
+              users={users}
+              currentUser={currentUser}
+              onCommentAdded={() => {}}
+            />
           </div>
         </>
       )}
@@ -305,6 +324,10 @@ export default function TaskList({ currentUser }) {
             </div>
           </div>
         </>
+      )}
+
+      {activeTab === TAB_NOTIFICACIONES && (
+        <NotificationsPanel currentUser={currentUser} />
       )}
     </div>
   );

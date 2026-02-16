@@ -71,6 +71,25 @@
   align-items: start;
 }
 
+.content-wrapper-three {
+  grid-template-columns: 1fr 1fr minmax(280px, 0.8fr);
+}
+
+@media (max-width: 1200px) {
+  .content-wrapper-three {
+    grid-template-columns: 1fr 1fr;
+  }
+  .content-wrapper-three .task-detail-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1024px) {
+  .content-wrapper-three {
+    grid-template-columns: 1fr;
+  }
+}
+
 .right-column {
   display: flex;
   flex-direction: column;
